@@ -54,10 +54,17 @@ server.post('/api/resources', (req, res) => {
 server.get('/api/tasks', (req, res) => {
 	db('tasks')
 		.then(tasks => {
+			db('projects')
+				.then(projects => {
+					console.log("this is your response!", projects)
+					res.status(200).json({ data: tasks })
+				})
 			res.status(200).json({ data: tasks })
 		}).catch(err => {
 			res.status(500).json({ message: 'Failed to get tasks.' });
 		});
+
+
 })
 
 // Create a new task, check for description and existing id 
@@ -108,7 +115,6 @@ server.post('/api/projects', (req, res) => {
 			res.status(500).json({ message: 'Failed to post project.' });
 		});
 })
-
 
 
 
