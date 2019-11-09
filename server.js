@@ -6,7 +6,7 @@ const knex = require('knex')
 const knexConfig = require('./knexfile')
 
 const db = knex(knexConfig.development)
-
+const ProjName = require('./projects/project-model.js');
 server.use(express.json());
 
 
@@ -35,12 +35,13 @@ server.get('/api/resources', (req, res) => {
 // Post new resource, notes are optional
 server.post('/api/resources', (req, res) => {
 	const resourceName = req.body.name
-	if (!resourceName) {
-		res.status(401).json({ message: 'Please include a name field!' })
+	const resourceDesc = req.body.description
+	if (!resourceName || !resourceDesc) {
+		res.status(401).json({ message: 'Please include a name and a description field!' })
 	}
 
 	db('resources')
-		.insert({ name: resourceName })
+		.insert({ name: resourceName, description: resourceDesc })
 		.then(resourceId => res.status(201).json({ data: resourceId })
 
 		).catch(err => {
@@ -52,15 +53,11 @@ server.post('/api/resources', (req, res) => {
 
 //Retrieve tasks
 server.get('/api/tasks', (req, res) => {
-	db('tasks')
+	ProjName.findName(db)
 		.then(tasks => {
-			db('projects')
-				.then(projects => {
-					console.log("this is your response!", projects)
-					res.status(200).json({ data: tasks })
-				})
 			res.status(200).json({ data: tasks })
 		}).catch(err => {
+			console.log(err);
 			res.status(500).json({ message: 'Failed to get tasks.' });
 		});
 
@@ -70,27 +67,27 @@ server.get('/api/tasks', (req, res) => {
 // Create a new task, check for description and existing id 
 server.post('/api/tasks', (req, res) => {
 	const taskDes = req.body.description
-	const projectId = req.body.projectId
+	const projectIds = req.body.projectId
 	if (!taskDes) {
 		res.status(400).json({ message: 'Provide a completed task description field!' })
-	} else if (!projectId) {
+	} else if (!projectIds) {
 		res.status(400).json({ message: 'Provide a projectId field with a valid projectId number!' })
 	}
 	db('projects')
 		.select()
-		.where({ id: projectId })
+		.where({ id: projectIds })
 		.then(project => {
 			if (project.length > 0) {
 				db('tasks')
 					.insert(req.body)
-					.then(() => {
-						db('tasks')
+					.then(projectIds => {
+						ProjName.findName(db)
 							.select()
-							.where({ projectId: projectId })
+							.where({ projectId: projectIds })
 							.then(tasks => {
 								res.status(201).json({ data: tasks })
 							}).catch(err => {
-								res.status(500).json({ message: 'Failed to post a new resource!' });
+								res.status(500).json({ message: 'Failed to update task!' });
 							});
 					}).catch(err => {
 						res.status(500).json({ message: 'Failed to post a new resource!' });
@@ -104,12 +101,13 @@ server.post('/api/tasks', (req, res) => {
 //post a new project with a required name
 server.post('/api/projects', (req, res) => {
 	const projectName = req.body.name
+	const projectDesc = req.body.description
 	if (!projectName) {
 		res.status(401).json({ message: 'Please include completed name field!' })
 	}
 
 	db('projects')
-		.insert({ name: projectName })
+		.insert({ name: projectName, description: projectDesc })
 		.then(projectId => res.status(201).json({ data: projectId })
 		).catch(err => {
 			res.status(500).json({ message: 'Failed to post project.' });
