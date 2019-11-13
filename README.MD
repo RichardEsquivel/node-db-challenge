@@ -39,13 +39,13 @@ Commit your code regularly and use descriptive messages. This helps both you (in
 Demonstrate your understanding of this week's concepts by answering the following free-form questions. Edit this document to include your answers after each question. Make sure to leave a blank line above and below your answer so it is clear and easy to read by your project manager.
 
 - [ ] Explain the difference between `Relational Databases` and `SQL`.
-
+	A relational database stores data in a tabular format grouped into rows and columns. SQL is a language utilized to manage the information within a database and to develop queries related to the data contained within a relational Database.
 - [ ] Why do tables need a `primary key`?
-
+	Tables need a primary key to have a uniquely identifiable  value to query an individual row within a table. They can be naturally created or generated.
 - [ ] What is the name given to a table column that references the primary key on another table.
-
+A foreign key.
 - [ ] What do we need in order to have a _many to many_ relationship between two tables.
-
+A many to many relationship can be determined when you have two entities A and B in which A can containt a parent row from which there are children in B and vice versa. Such as many teachers having many students and many of those students having many of those teachers.
 ## Minimum Viable Product
 
 Take the steps necessary to complete the project from scratch. Start by initializing your project with a `package.json` and go from there.
